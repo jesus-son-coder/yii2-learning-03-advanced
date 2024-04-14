@@ -15,8 +15,8 @@ class PostController extends ActiveController
     {
         $behaviors = parent::behaviors();
 
-        $behaviors['authenticator'] = [
-            'class' => HttpBearerAuth::class
+        $behaviors['authenticator']['authMethods'] = [
+            HttpBearerAuth::class
         ];
 
         return $behaviors;
