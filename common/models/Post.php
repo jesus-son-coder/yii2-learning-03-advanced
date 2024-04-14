@@ -2,9 +2,11 @@
 
 namespace common\models;
 
+use common\models\query\PostQuery;
 use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveQuery;
 
 /**
  * This is the model class for table "{{%post}}".
@@ -15,6 +17,9 @@ use yii\behaviors\TimestampBehavior;
  * @property int|null $created_at
  * @property int|null $updated_at
  * @property int|null $created_by
+ *
+ * @property Comment[] $comments
+ * @property User $createdBy
  */
 class Post extends \yii\db\ActiveRecord
 {
@@ -48,6 +53,7 @@ class Post extends \yii\db\ActiveRecord
             [['body'], 'string'],
             [['created_at', 'updated_at', 'created_by'], 'integer'],
             [['title'], 'string', 'max' => 512],
+            [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['created_by' => 'id']],
         ];
     }
 
@@ -67,11 +73,27 @@ class Post extends \yii\db\ActiveRecord
     }
 
     /**
-     * {@inheritdoc}
-     * @return \common\models\query\PostQuery the active query used by this AR class.
+     * @return ActiveQuery
      */
-    public static function find()
+    public function getComments(): ActiveQuery
     {
-        return new \common\models\query\PostQuery(get_called_class());
+        return $this->hasMany(Comment::class, ['post_id' => 'id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getCreatedBy(): ActiveQuery
+    {
+        return $this->hasOne(User::class, ['id' => 'created_by']);
+    }
+
+    /**
+     * {@inheritdoc}
+     * @return PostQuery the active query used by this AR class.
+     */
+    public static function find(): PostQuery
+    {
+        return new PostQuery(get_called_class());
     }
 }

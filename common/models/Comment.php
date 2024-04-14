@@ -3,6 +3,9 @@
 namespace common\models;
 
 use Yii;
+use yii\behaviors\BlameableBehavior;
+use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveQuery;
 
 /**
  * This is the model class for table "{{%comment}}".
@@ -14,6 +17,9 @@ use Yii;
  * @property int|null $created_at
  * @property int|null $updated_at
  * @property int|null $created_by
+ *
+ * @property Post $post
+ * @property User $createdBy
  */
 class Comment extends \yii\db\ActiveRecord
 {
@@ -25,15 +31,29 @@ class Comment extends \yii\db\ActiveRecord
         return '{{%comment}}';
     }
 
+    public function behaviors(): array
+    {
+        return [
+            TimestampBehavior::class,
+            [
+                'class' => BlameableBehavior::class,
+                'updatedByAttribute' => false
+            ]
+        ];
+    }
+
     /**
      * {@inheritdoc}
      */
     public function rules()
     {
         return [
+            [['title','body','post_id'], 'required'],
             [['body'], 'string'],
             [['post_id', 'created_at', 'updated_at', 'created_by'], 'integer'],
             [['title'], 'string', 'max' => 512],
+            [['post_id'], 'exist', 'skipOnError' => true, 'targetClass' => Post::className(), 'targetAttribute' => ['post_id' => 'id']],
+            [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['created_by' => 'id']],
         ];
     }
 
@@ -51,6 +71,22 @@ class Comment extends \yii\db\ActiveRecord
             'updated_at' => 'Updated At',
             'created_by' => 'Created By',
         ];
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getPost(): ActiveQuery
+    {
+        return $this->hasOne(Post::class, ['id' => 'post_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getCreatedBy(): ActiveQuery
+    {
+        return $this->hasOne(User::class, ['id' => 'created_by']);
     }
 
     /**
