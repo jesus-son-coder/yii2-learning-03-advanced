@@ -7,10 +7,11 @@ use yii\db\ActiveQuery;
 
 class Comment extends \common\models\Comment
 {
+    /*
     public function fields(): array
     {
         return ['id','title', 'body', 'post_id'];
-    }
+    } */
 
     public function extraFields()
     {

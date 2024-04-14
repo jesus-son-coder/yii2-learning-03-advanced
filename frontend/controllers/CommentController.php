@@ -3,8 +3,6 @@
 namespace frontend\controllers;
 
 use frontend\resource\Comment;
-use yii\rest\ActiveController;
-
 use yii\data\ActiveDataProvider;
 
 class CommentController extends ActiveController
