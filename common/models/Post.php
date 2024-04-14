@@ -26,6 +26,7 @@ class Post extends \yii\db\ActiveRecord
         return '{{%post}}';
     }
 
+
     public function behaviors(): array
     {
         return [
